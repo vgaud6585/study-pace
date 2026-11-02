@@ -1,0 +1,14 @@
+## Phase 2 - Database Design
+
+### Completed
+- Created CodeSnippet model.
+- Added title and language fields.
+- Added description and code fields.
+- Added category and favorite fields.
+- Added created_at and updated_at.
+- Applied database migrations.
+
+### Files Updated
+- snippets/models.py
+- snippets/migrations/
+- db.sqlite3
