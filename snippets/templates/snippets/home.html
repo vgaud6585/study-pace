@@ -1,0 +1,113 @@
+{% extends "snippets/base.html" %}
+
+{% block title %}Dashboard | Study Place{% endblock %}
+{% block heading %}My Code Library{% endblock %}
+
+{% block content %}
+
+<div class="welcome">
+    <div>
+        <h1>Welcome to Study Place 👋</h1>
+        <p>Save the code you learn and quickly review it anytime.</p>
+    </div>
+</div>
+
+<form method="GET" action="{% url 'home' %}" class="search-form">
+    <input
+        type="search"
+        name="q"
+        placeholder="Search title, language, category..."
+        value="{{ query }}"
+    >
+    <button type="submit" class="btn btn-primary">Search</button>
+
+    {% if query %}
+        <a href="{% url 'home' %}" class="btn btn-light">Clear</a>
+    {% endif %}
+</form>
+
+<div class="section-heading">
+    <div>
+        <h2>
+            {% if query %}
+                Search Results
+            {% else %}
+                All Snippets
+            {% endif %}
+        </h2>
+        <p>{{ snippets|length }} snippets found</p>
+    </div>
+</div>
+
+<div class="snippet-grid">
+
+    {% for snippet in snippets %}
+
+    <article class="snippet-card">
+
+        <div class="card-top">
+            <span class="language-tag">
+                {{ snippet.language }}
+            </span>
+
+            <form method="POST"
+                  action="{% url 'toggle_favorite' snippet.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                <button class="favorite-btn" type="submit">
+                    {% if snippet.is_favorite %}
+                        ★
+                    {% else %}
+                        ☆
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+
+        <h3>{{ snippet.title }}</h3>
+
+        <p class="description">
+            {{ snippet.description|default:"No description added."|truncatechars:100 }}
+        </p>
+
+        <div class="code-preview">
+            <pre><code>{{ snippet.code|truncatechars:180 }}</code></pre>
+        </div>
+
+        <div class="card-footer">
+            <span>{{ snippet.category|default:"Uncategorized" }}</span>
+
+            <a href="{% url 'snippet_detail' snippet.pk %}">
+                View Code →
+            </a>
+        </div>
+
+    </article>
+
+    {% empty %}
+
+    <div class="empty-state">
+        <div class="empty-icon">⌘</div>
+
+        {% if query %}
+            <h3>No matching snippets found</h3>
+            <p>Try another search keyword.</p>
+            <a href="{% url 'home' %}" class="btn btn-light">
+                Clear Search
+            </a>
+        {% else %}
+            <h3>Your library is empty</h3>
+            <p>Start by adding your first code snippet.</p>
+            <a href="{% url 'create_snippet' %}"
+               class="btn btn-primary">
+                + Add Your First Code
+            </a>
+        {% endif %}
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

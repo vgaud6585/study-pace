@@ -12,3 +12,30 @@
 - snippets/models.py
 - snippets/migrations/
 - db.sqlite3
+
+## Phase 2 – Database Design
+
+- [x] CodeSnippet model created
+- [x] Database migrations applied
+
+## Phase 3 – Backend Development
+
+### Admin Setup
+- [x] CodeSnippet registered in admin.py
+- [x] Admin list_display configured
+- [x] Search fields configured
+- [x] Filters configured
+- [ ] Test adding code
+- [ ] Test editing code
+- [ ] Test deleting code
+
+### Files
+- snippets/admin.py
+
+## Phase 3 – Backend Development
+
+### Forms
+- [x] Created forms.py
+- [x] Created CodeSnippetForm
+- [x] Configured form fields
+- [x] Added input widgets

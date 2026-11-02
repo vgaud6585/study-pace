@@ -1,0 +1,64 @@
+{% extends "snippets/base.html" %}
+
+{% block title %}{{ snippet.title }} | Study Place{% endblock %}
+{% block heading %}Code Details{% endblock %}
+
+{% block content %}
+
+<div class="detail-container">
+
+    <div class="detail-header">
+        <div>
+            <span class="language-tag">{{ snippet.language }}</span>
+            <h1>{{ snippet.title }}</h1>
+
+            <p>{{ snippet.description|default:"No description added." }}</p>
+        </div>
+
+        <form method="POST"
+              action="{% url 'toggle_favorite' snippet.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+
+            <button class="favorite-btn large" type="submit">
+                {% if snippet.is_favorite %}★{% else %}☆{% endif %}
+            </button>
+        </form>
+    </div>
+
+    <div class="detail-meta">
+        <span>Category: {{ snippet.category|default:"Uncategorized" }}</span>
+        <span>Created: {{ snippet.created_at|date:"d M Y" }}</span>
+        <span>Updated: {{ snippet.updated_at|date:"d M Y" }}</span>
+    </div>
+
+    <div class="code-header">
+        <span>Source Code</span>
+        <button type="button" class="btn btn-light copy-btn">
+            Copy Code
+        </button>
+    </div>
+
+    <div class="code-block">
+        <pre><code>{{ snippet.code }}</code></pre>
+    </div>
+
+    <div class="detail-actions">
+        <a href="{% url 'edit_snippet' snippet.pk %}"
+           class="btn btn-primary">
+            Edit Code
+        </a>
+
+        <a href="{% url 'delete_snippet' snippet.pk %}"
+           class="btn btn-danger">
+            Delete
+        </a>
+
+        <a href="{% url 'home' %}" class="btn btn-light">
+            Back
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

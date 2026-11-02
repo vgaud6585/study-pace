@@ -1,0 +1,38 @@
+{% extends "snippets/base.html" %}
+
+{% block title %}Delete Snippet | Study Place{% endblock %}
+{% block heading %}Delete Code{% endblock %}
+
+{% block content %}
+
+<div class="delete-container">
+
+    <div class="delete-icon">!</div>
+
+    <h1>Delete this snippet?</h1>
+
+    <p>
+        Are you sure you want to delete
+        <strong>{{ snippet.title }}</strong>?
+    </p>
+
+    <p class="warning-text">
+        This action cannot be undone.
+    </p>
+
+    <form method="POST" class="form-actions">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-danger">
+            Yes, Delete
+        </button>
+
+        <a href="{% url 'snippet_detail' snippet.pk %}"
+           class="btn btn-light">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}
