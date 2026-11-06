@@ -1,0 +1,76 @@
+
+{% extends 'StudyPlace/base.html' %}
+
+{% block title %}Dashboard | Study Place{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Welcome to your learning space.</p>
+    </div>
+
+    <a href="{% url 'StudyPlace:content_create' %}" class="btn">
+        + Add Content
+    </a>
+</div>
+
+<div class="stats">
+
+    <div class="stat-card">
+        <h3>Total Languages</h3>
+        <h1>{{ total_languages }}</h1>
+        <a href="{% url 'StudyPlace:language_list' %}">View Languages</a>
+    </div>
+
+    <div class="stat-card">
+        <h3>Total Contents</h3>
+        <h1>{{ total_contents }}</h1>
+        <a href="{% url 'StudyPlace:content_list' %}">View Contents</a>
+    </div>
+
+</div>
+
+<div class="section-header">
+    <h2>Recent Contents</h2>
+    <a href="{% url 'StudyPlace:content_list' %}">View All</a>
+</div>
+
+<div class="content-grid">
+    {% for content in recent_contents %}
+        <div class="content-card">
+            <span class="tag">{{ content.language.name }}</span>
+            <h3>{{ content.heading }}</h3>
+            <p>{{ content.description|truncatewords:20 }}</p>
+
+            <a href="{% url 'StudyPlace:content_detail' content.pk %}">
+                Read More →
+            </a>
+        </div>
+    {% empty %}
+        <p>No content saved yet.</p>
+    {% endfor %}
+</div>
+
+<div class="section-header">
+    <h2>Your Languages</h2>
+    <a href="{% url 'StudyPlace:language_create' %}">+ Add Language</a>
+</div>
+
+<div class="content-grid">
+    {% for language in languages %}
+        <div class="content-card">
+            <h3>{{ language.name }}</h3>
+            <p>{{ language.description|truncatewords:15 }}</p>
+            <p>{{ language.contents.count }} Topics</p>
+            <a href="{% url 'StudyPlace:language_edit' language.pk %}">
+                Edit
+            </a>
+        </div>
+    {% empty %}
+        <p>No languages added yet.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

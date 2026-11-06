@@ -1,0 +1,26 @@
+
+{% extends 'StudyPlace/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="form-card">
+
+    <h1>{{ title }}</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn">Save Content</button>
+
+        <a href="{% url 'StudyPlace:content_list' %}" class="cancel">
+            Cancel
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}

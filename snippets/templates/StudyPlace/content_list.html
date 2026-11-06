@@ -1,0 +1,72 @@
+
+{% extends 'StudyPlace/base.html' %}
+
+{% block title %}All Contents{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>All Contents</h1>
+
+    <a href="{% url 'StudyPlace:content_create' %}" class="btn">
+        + Add Content
+    </a>
+</div>
+
+<form method="GET" class="search-form">
+
+    <input type="search" name="q"
+           value="{{ query }}"
+           placeholder="Search topics or code...">
+
+    <select name="language">
+        <option value="">All Languages</option>
+
+        {% for lang in languages %}
+            <option value="{{ lang.pk }}"
+                {% if selected_language == lang.pk|stringformat:"s" %}
+                    selected
+                {% endif %}>
+                {{ lang.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button class="btn" type="submit">Search</button>
+</form>
+
+<div class="content-grid">
+
+{% for content in contents %}
+
+    <div class="content-card">
+
+        <span class="tag">{{ content.language.name }}</span>
+
+        <h3>{{ content.heading }}</h3>
+
+        <p>{{ content.description|truncatewords:20 }}</p>
+
+        <div class="actions">
+            <a href="{% url 'StudyPlace:content_detail' content.pk %}">
+                View
+            </a>
+
+            <a href="{% url 'StudyPlace:content_edit' content.pk %}">
+                Edit
+            </a>
+
+            <a href="{% url 'StudyPlace:content_delete' content.pk %}">
+                Delete
+            </a>
+        </div>
+
+    </div>
+
+{% empty %}
+    <p>No contents found.</p>
+{% endfor %}
+
+</div>
+
+{% endblock %}

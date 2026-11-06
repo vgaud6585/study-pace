@@ -1,42 +1,60 @@
 
 from django import forms
-from .models import CodeSnippet
+from .models import AppLanguage, AppContent
 
 
-class CodeSnippetForm(forms.ModelForm):
+class AppLanguageForm(forms.ModelForm):
 
     class Meta:
-        model = CodeSnippet
+        model = AppLanguage
+        fields = ["name", "description"]
 
+        widgets = {
+            "name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter language name"
+            }),
+            "description": forms.Textarea(attrs={
+                "class": "form-control",
+                "placeholder": "About this language",
+                "rows": 4
+            }),
+        }
+
+
+class AppContentForm(forms.ModelForm):
+
+    class Meta:
+        model = AppContent
         fields = [
-            "title",
             "language",
+            "heading",
             "description",
-            "code",
-            "category",
-            "is_favorite",
+            "code_snippets",
+            "code_box",
         ]
 
         widgets = {
-            "title": forms.TextInput(attrs={
-                "placeholder": "Enter code title"
+            "language": forms.Select(attrs={
+                "class": "form-control"
             }),
-
-            "language": forms.TextInput(attrs={
-                "placeholder": "e.g. HTML, CSS, Python"
+            "heading": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter topic heading"
             }),
-
             "description": forms.Textarea(attrs={
-                "placeholder": "Explain what this code does",
-                "rows": 3
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Explain this topic"
             }),
-
-            "code": forms.Textarea(attrs={
-                "placeholder": "Write or paste your code here",
-                "rows": 12
+            "code_snippets": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 5,
+                "placeholder": "Small code snippets"
             }),
-
-            "category": forms.TextInput(attrs={
-                "placeholder": "e.g. Frontend, Backend"
+            "code_box": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 12,
+                "placeholder": "Write complete code here"
             }),
         }

@@ -1,20 +1,85 @@
+
 from django.urls import path
 from . import views
 
+
+app_name = "StudyPlace"
+
+
 urlpatterns = [
-    path("", views.home, name="home"),
 
-    path("add/", views.create_snippet, name="create_snippet"),
+    # ==================================
+    # DASHBOARD
+    # ==================================
 
-    path("snippet/<int:pk>/", views.snippet_detail,
-         name="snippet_detail"),
+    path(
+        "",
+        views.dashboard,
+        name="dashboard"
+    ),
 
-    path("edit/<int:pk>/", views.edit_snippet,
-         name="edit_snippet"),
 
-    path("delete/<int:pk>/", views.delete_snippet,
-         name="delete_snippet"),
+    # ==================================
+    # LANGUAGE URLS
+    # ==================================
 
-    path("favorite/<int:pk>/", views.toggle_favorite,
-         name="toggle_favorite"),
+    path(
+        "languages/",
+        views.language_list,
+        name="language_list"
+    ),
+
+    path(
+        "languages/add/",
+        views.language_create,
+        name="language_create"
+    ),
+
+    path(
+        "languages/<int:pk>/edit/",
+        views.language_edit,
+        name="language_edit"
+    ),
+
+    path(
+        "languages/<int:pk>/delete/",
+        views.language_delete,
+        name="language_delete"
+    ),
+
+
+    # ==================================
+    # CONTENT URLS
+    # ==================================
+
+    path(
+        "contents/",
+        views.content_list,
+        name="content_list"
+    ),
+
+    path(
+        "contents/add/",
+        views.content_create,
+        name="content_create"
+    ),
+
+    path(
+        "contents/<int:pk>/",
+        views.content_detail,
+        name="content_detail"
+    ),
+
+    path(
+        "contents/<int:pk>/edit/",
+        views.content_edit,
+        name="content_edit"
+    ),
+
+    path(
+        "contents/<int:pk>/delete/",
+        views.content_delete,
+        name="content_delete"
+    ),
+
 ]

@@ -1,96 +1,385 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
-from django.views.decorators.http import require_POST
+from django.contrib import messages
 
-from .models import CodeSnippet
-from .forms import CodeSnippetForm
+from .models import AppLanguage, AppContent
+from .forms import AppLanguageForm, AppContentForm
 
 
-# READ + SEARCH
-def home(request):
+# ==================================================
+# DASHBOARD
+# ==================================================
+
+def dashboard(request):
+
+    context = {
+        "total_languages": AppLanguage.objects.count(),
+
+        "total_contents": AppContent.objects.count(),
+
+        "recent_contents": (
+            AppContent.objects
+            .select_related("language")
+            .order_by("-created_at")[:5]
+        ),
+
+        "languages": (
+            AppLanguage.objects
+            .order_by("name")[:6]
+        ),
+    }
+
+    return render(
+        request,
+        "StudyPlace/dashboard.html",
+        context
+    )
+
+
+# ==================================================
+# LANGUAGE: LIST / SEARCH
+# ==================================================
+
+def language_list(request):
+
     query = request.GET.get("q", "").strip()
 
-    snippets = CodeSnippet.objects.all().order_by("-created_at")
+    languages = AppLanguage.objects.all()
 
     if query:
-        snippets = snippets.filter(
-            Q(title__icontains=query) |
-            Q(language__icontains=query) |
-            Q(category__icontains=query) |
+        languages = languages.filter(
+            Q(name__icontains=query) |
             Q(description__icontains=query)
         )
 
-    return render(request, "snippets/home.html", {
-        "snippets": snippets,
+    languages = languages.order_by("name")
+
+    context = {
+        "languages": languages,
         "query": query,
-    })
+    }
+
+    return render(
+        request,
+        "StudyPlace/language_list.html",
+        context
+    )
 
 
-# CREATE
-def create_snippet(request):
-    if request.method == "POST":
-        form = CodeSnippetForm(request.POST)
+# ==================================================
+# LANGUAGE: CREATE
+# ==================================================
 
-        if form.is_valid():
-            snippet = form.save()
-            return redirect("snippet_detail", pk=snippet.pk)
-    else:
-        form = CodeSnippetForm()
+def language_create(request):
 
-    return render(request, "snippets/snippet_form.html", {
-        "form": form,
-        "page_title": "Add New Code",
-    })
-
-
-# DETAIL
-def snippet_detail(request, pk):
-    snippet = get_object_or_404(CodeSnippet, pk=pk)
-
-    return render(request, "snippets/detail.html", {
-        "snippet": snippet,
-    })
-
-
-# UPDATE
-def edit_snippet(request, pk):
-    snippet = get_object_or_404(CodeSnippet, pk=pk)
+    form = AppLanguageForm(
+        request.POST if request.method == "POST" else None
+    )
 
     if request.method == "POST":
-        form = CodeSnippetForm(request.POST, instance=snippet)
 
         if form.is_valid():
+
             form.save()
-            return redirect("snippet_detail", pk=snippet.pk)
-    else:
-        form = CodeSnippetForm(instance=snippet)
 
-    return render(request, "snippets/snippet_form.html", {
-        "form": form,
-        "page_title": "Edit Code",
-        "snippet": snippet,
-    })
+            messages.success(
+                request,
+                "Language created successfully!"
+            )
+
+            return redirect("StudyPlace:language_list")
+
+        messages.error(
+            request,
+            "Please correct the errors below."
+        )
+
+    return render(
+        request,
+        "StudyPlace/language_form.html",
+        {
+            "form": form,
+            "title": "Add Language",
+        }
+    )
 
 
-# DELETE
-def delete_snippet(request, pk):
-    snippet = get_object_or_404(CodeSnippet, pk=pk)
+# ==================================================
+# LANGUAGE: EDIT
+# ==================================================
+
+def language_edit(request, pk):
+
+    language = get_object_or_404(
+        AppLanguage,
+        pk=pk
+    )
+
+    form = AppLanguageForm(
+        request.POST if request.method == "POST" else None,
+        instance=language
+    )
 
     if request.method == "POST":
-        snippet.delete()
-        return redirect("home")
 
-    return render(request, "snippets/delete_confirm.html", {
-        "snippet": snippet,
-    })
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                "Language updated successfully!"
+            )
+
+            return redirect("StudyPlace:language_list")
+
+        messages.error(
+            request,
+            "Please correct the errors below."
+        )
+
+    return render(
+        request,
+        "StudyPlace/language_form.html",
+        {
+            "form": form,
+            "title": "Edit Language",
+            "language": language,
+        }
+    )
 
 
-# FAVORITE
-@require_POST
-def toggle_favorite(request, pk):
-    snippet = get_object_or_404(CodeSnippet, pk=pk)
+# ==================================================
+# LANGUAGE: DELETE
+# ==================================================
 
-    snippet.is_favorite = not snippet.is_favorite
-    snippet.save(update_fields=["is_favorite"])
+def language_delete(request, pk):
 
-    return redirect(request.POST.get("next") or "home")
+    language = get_object_or_404(
+        AppLanguage,
+        pk=pk
+    )
+
+    if request.method == "POST":
+
+        # Check whether language contains contents
+        if language.contents.exists():
+
+            messages.error(
+                request,
+                "This language contains saved contents. "
+                "Delete or move those contents first."
+            )
+
+            return redirect("StudyPlace:language_list")
+
+        language.delete()
+
+        messages.success(
+            request,
+            "Language deleted successfully!"
+        )
+
+        return redirect("StudyPlace:language_list")
+
+    return render(
+        request,
+        "StudyPlace/language_confirm_delete.html",
+        {
+            "language": language,
+        }
+    )
+
+
+# ==================================================
+# CONTENT: LIST / SEARCH / FILTER
+# ==================================================
+
+def content_list(request):
+
+    query = request.GET.get("q", "").strip()
+
+    language_id = request.GET.get("language", "").strip()
+
+    contents = (
+        AppContent.objects
+        .select_related("language")
+        .all()
+    )
+
+    # Search
+    if query:
+
+        contents = contents.filter(
+            Q(heading__icontains=query) |
+            Q(description__icontains=query) |
+            Q(code_snippets__icontains=query) |
+            Q(code_box__icontains=query) |
+            Q(language__name__icontains=query)
+        )
+
+    # Language filter
+    if language_id:
+
+        contents = contents.filter(
+            language_id=language_id
+        )
+
+    contents = contents.order_by("-created_at")
+
+    context = {
+        "contents": contents,
+
+        "languages": AppLanguage.objects.order_by("name"),
+
+        "query": query,
+
+        "selected_language": language_id,
+    }
+
+    return render(
+        request,
+        "StudyPlace/content_list.html",
+        context
+    )
+
+
+# ==================================================
+# CONTENT: DETAIL
+# ==================================================
+
+def content_detail(request, pk):
+
+    content = get_object_or_404(
+        AppContent.objects.select_related("language"),
+        pk=pk
+    )
+
+    return render(
+        request,
+        "StudyPlace/content_detail.html",
+        {
+            "content": content,
+        }
+    )
+
+
+# ==================================================
+# CONTENT: CREATE
+# ==================================================
+
+def content_create(request):
+
+    form = AppContentForm(
+        request.POST if request.method == "POST" else None
+    )
+
+    if request.method == "POST":
+
+        if form.is_valid():
+
+            content = form.save()
+
+            messages.success(
+                request,
+                "Content created successfully!"
+            )
+
+            return redirect(
+                "StudyPlace:content_detail",
+                pk=content.pk
+            )
+
+        messages.error(
+            request,
+            "Please correct the errors below."
+        )
+
+    return render(
+        request,
+        "StudyPlace/content_form.html",
+        {
+            "form": form,
+            "title": "Add New Content",
+        }
+    )
+
+
+# ==================================================
+# CONTENT: EDIT
+# ==================================================
+
+def content_edit(request, pk):
+
+    content = get_object_or_404(
+        AppContent,
+        pk=pk
+    )
+
+    form = AppContentForm(
+        request.POST if request.method == "POST" else None,
+        instance=content
+    )
+
+    if request.method == "POST":
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                "Content updated successfully!"
+            )
+
+            return redirect(
+                "StudyPlace:content_detail",
+                pk=content.pk
+            )
+
+        messages.error(
+            request,
+            "Please correct the errors below."
+        )
+
+    return render(
+        request,
+        "StudyPlace/content_form.html",
+        {
+            "form": form,
+            "title": "Edit Content",
+            "content": content,
+        }
+    )
+
+
+# ==================================================
+# CONTENT: DELETE
+# ==================================================
+
+def content_delete(request, pk):
+
+    content = get_object_or_404(
+        AppContent,
+        pk=pk
+    )
+
+    if request.method == "POST":
+
+        content.delete()
+
+        messages.success(
+            request,
+            "Content deleted successfully!"
+        )
+
+        return redirect("StudyPlace:content_list")
+
+    return render(
+        request,
+        "StudyPlace/content_confirm_delete.html",
+        {
+            "content": content,
+        }
+    )

@@ -1,0 +1,48 @@
+
+{% extends 'StudyPlace/base.html' %}
+
+{% block title %}{{ content.heading }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <span class="tag">{{ content.language.name }}</span>
+        <h1>{{ content.heading }}</h1>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'StudyPlace:content_edit' content.pk %}" class="btn">
+            Edit
+        </a>
+
+        <a href="{% url 'StudyPlace:content_delete' content.pk %}" class="delete-link">
+            Delete
+        </a>
+    </div>
+</div>
+
+<section class="detail-section">
+    <h2>Description</h2>
+    <p>{{ content.description|default:"No description available."|linebreaks }}</p>
+</section>
+
+<section class="detail-section">
+    <h2>Quick Code Snippets</h2>
+    <pre><code>{{ content.code_snippets }}</code></pre>
+</section>
+
+<section class="detail-section">
+    <h2>Complete Code</h2>
+    <pre><code>{{ content.code_box }}</code></pre>
+</section>
+
+<p class="meta">
+    Created: {{ content.created_at|date:"d M Y" }}
+    <br>
+    Updated: {{ content.updated_at|date:"d M Y" }}
+</p>
+
+<a href="{% url 'StudyPlace:content_list' %}">← Back to Contents</a>
+
+{% endblock %}

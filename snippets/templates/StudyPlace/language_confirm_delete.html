@@ -1,0 +1,24 @@
+
+{% extends 'StudyPlace/base.html' %}
+
+{% block content %}
+
+<div class="form-card">
+    <h1>Delete Language?</h1>
+
+    <p>Are you sure you want to delete {{ language.name }}?</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <button type="submit" class="btn danger">
+            Confirm Delete
+        </button>
+
+        <a href="{% url 'StudyPlace:language_list' %}" class="cancel">
+            Cancel
+        </a>
+    </form>
+</div>
+
+{% endblock %}

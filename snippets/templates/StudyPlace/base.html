@@ -1,0 +1,47 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Study Place{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'StudyPlace/style.css' %}">
+</head>
+<body>
+
+<header class="navbar">
+    <a href="{% url 'StudyPlace:dashboard' %}" class="brand">
+        Study Place
+    </a>
+
+    <nav>
+        <a href="{% url 'StudyPlace:dashboard' %}">Dashboard</a>
+        <a href="{% url 'StudyPlace:language_list' %}">Languages</a>
+        <a href="{% url 'StudyPlace:content_list' %}">Contents</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+<footer class="footer">
+    Study Place - Save the code you learn and quickly review it anytime.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+
+{% extends 'StudyPlace/base.html' %}
+
+{% block title %}Languages | Study Place{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Languages</h1>
+    <a href="{% url 'StudyPlace:language_create' %}" class="btn">
+        + Add Language
+    </a>
+    
+</div>
+
+<form method="GET" class="search-form">
+    <input type="search" name="q"
+           value="{{ query }}"
+           placeholder="Search languages...">
+    <button type="submit" class="btn">Search</button>
+</form>
+
+<div class="content-grid">
+
+{% for language in languages %}
+    <div class="content-card">
+        <h3>{{ language.name }}</h3>
+        <p>{{ language.description }}</p>
+
+        <p>{{ language.contents.count }} Topics</p>
+
+        <div class="actions">
+            <a href="{% url 'StudyPlace:language_edit' language.pk %}">Edit</a>
+            <a href="{% url 'StudyPlace:language_delete' language.pk %}">Delete</a>
+        </div>
+    </div>
+{% empty %}
+    <p>No languages found.</p>
+{% endfor %}
+
+</div>
+
+{% endblock %}
